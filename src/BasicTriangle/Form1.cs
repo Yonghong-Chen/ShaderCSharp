@@ -14,13 +14,18 @@ namespace BasicTriangle
         public delegate void ExitProgramType();
         public delegate void SaveOutputType(string path);
         public delegate void CompileType(string shader);
+        public delegate void PauseShaderType(bool bPause);        
 
         public ResizeClientType ResizeClient;
         public ExitProgramType ExitProgram;
         public SaveOutputType SaveOutput;
         public CompileType CompileCode;
+        public PauseShaderType PauseShader;
         public Form1()
         {
+            for (int i = 0; i < frameDeltas.Length; i++)
+                frameDeltas[i] = 0.0f;
+               
             InitializeComponent();
         }
 
@@ -64,6 +69,49 @@ namespace BasicTriangle
         private void CompileButton_Click(object sender, EventArgs e)
         {
             CompileCode(this.shaderText.Text);
+        }
+
+        private void buttonPause_Click(object sender, EventArgs e)
+        {
+            if (this.buttonPause.Text == "Pause")
+            {
+                PauseShader(true);
+                this.buttonPause.Text = "Resume"; 
+            }
+            else
+            {
+                this.buttonPause.Text = "Pause";
+                PauseShader(false);
+            }
+        }
+
+        private int frameRateIndex = 0;
+        private float[] frameDeltas = new float[10];
+        public void ReportFrameRate(float frameDelta)
+        {
+            frameDeltas[frameRateIndex++] = frameDelta;
+            if (frameRateIndex >= frameDeltas.Length)
+                frameRateIndex = 0;
+
+            float count = 0.0f;
+            float total = 0.0f;
+            foreach(var delta in frameDeltas)
+            {
+                if (delta != 0.0f)
+                {
+                    total += delta;
+                    count += 1.0f;
+                }
+            }
+            if (count == 0.0f || total == 0.0f)
+                lableFrameRate.Text = "";
+            else
+            {
+                float average = total / count;
+                float rate = 1.0f / average;
+                int FrameRate = (int)rate;
+                lableFrameRate.Text = string.Format("{0} fps");
+            }
         }
     }
 }

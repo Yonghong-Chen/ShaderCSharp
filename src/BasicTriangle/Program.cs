@@ -10,11 +10,14 @@ namespace BasicTriangle
 {
     sealed class Program : GameWindow
     {
+        public delegate void ReportFrameRateType(float frameDelta);
+        public ReportFrameRateType ReportFrameRate;
         Stopwatch stopwatch = new Stopwatch();
         List<iChannel> m_iChannels = new List<iChannel>();
         float m_iTime; //iTime
         float m_iTimeDelta; //time Delta
         int m_iFrame; //frame
+        bool bPause = false;
         struct channelInfo
         {            
             public string path;
@@ -81,7 +84,7 @@ namespace BasicTriangle
         int VertexBufferObject;
         int VertexArrayObject;
 
-        void CompileShader(string vertex, string fragment)
+        bool CompileShader(string vertex, string fragment)
         {
             GL.DeleteProgram(ShaderProgram);
             GL.DeleteShader(VertexShader);
@@ -132,6 +135,7 @@ namespace BasicTriangle
                 GL.DeleteShader(VertexShader);
                 GL.DeleteShader(FragmentShader);
                 System.Windows.Forms.MessageBox.Show(error, "Failed to Compile Shader");
+                return false;
             }
             finally
             {
@@ -139,6 +143,7 @@ namespace BasicTriangle
                 m_iTimeDelta = 0.0f;
                 m_iFrame = 0;
             }
+            return true;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -342,8 +347,12 @@ namespace BasicTriangle
 
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append(standardHeaderFront);
-            sb.AppendLine();
+            sb.AppendLine();            
+            foreach (var channel in m_iChannels)
+                channel.Unload();
+
             m_iChannels.Clear();
+
             for (int i = 0; i < 10; i ++)
             {
                 if (!string.IsNullOrEmpty(infos[i].path))
@@ -365,13 +374,21 @@ namespace BasicTriangle
             sb.Append(standardHeaderBack);
 
             System.Diagnostics.Debug.Write(sb.ToString());
-            CompileShader(standardVertex, sb.ToString());
+            if (CompileShader(standardVertex, sb.ToString()))
+            {
+                foreach (var channel in m_iChannels)
+                {
+                    channel.Load();
+                }
+            }
         }
         void OnPrepareParameters()
         {
             float newTime = (float)stopwatch.ElapsedMilliseconds / (float)1000.0; ;
             m_iTimeDelta = newTime - m_iTime;
             m_iTime = newTime;
+            if (!this.bPause)
+                ReportFrameRate(m_iTimeDelta);
             int loc;
             loc = GL.GetUniformLocation(ShaderProgram, "iOpacity");
             if (loc != -1)
@@ -398,7 +415,28 @@ namespace BasicTriangle
             
             loc = GL.GetUniformLocation(ShaderProgram, "iMouse");
             if (loc != -1)
-                GL.Uniform4(6, 0.0f, 0.0f, 0.0f, 0.0f);
+                GL.Uniform4(loc, 0.0f, 0.0f, 0.0f, 0.0f);
+
+            loc = GL.GetUniformLocation(ShaderProgram, "iChannelResolution");
+            if (loc != -1 && m_iChannels.Count > 0)
+            {
+                //Vector3[] res = new Vector3[m_iChannels.Count];
+                float[] result = new float[m_iChannels.Count * 3];
+                for (int i = 0; i < m_iChannels.Count; i ++)
+                {
+                    int width = m_iChannels[i].width;
+                    int height = m_iChannels[i].height;
+
+                    //res[i].X = width;
+                    //res[i].Y = height;
+                    //res[i].Z = 1;
+                    result[i * 3 + 0] = width;
+                    result[i * 3 + 1] = height;
+                    result[i * 3 + 2] = 1.0f;
+                }
+
+                GL.Uniform3(loc, m_iChannels.Count, result);
+            }
 
             var GlErrorCode = GL.GetError();
             foreach(iChannel channel in this.m_iChannels)
@@ -417,11 +455,19 @@ namespace BasicTriangle
                     TextureUnit.Texture8,
                     TextureUnit.Texture9,
                 };
-                GL.ActiveTexture(units[channel.id]);
+                GL.ActiveTexture(units[channel.GetGLId()]);
                 GL.BindTexture(TextureTarget.Texture2D, channel.textureID);
-                GL.Uniform1(GL.GetUniformLocation(ShaderProgram, name), channel.id);
+                GL.Uniform1(GL.GetUniformLocation(ShaderProgram, name), channel.GetGLId());
                 GlErrorCode = GL.GetError();
             }
+        }
+        void PauseShader(bool bPause)
+        {
+            this.bPause = bPause;
+            if (this.bPause)
+                stopwatch.Stop();
+            else
+                stopwatch.Start();
         }
         [STAThread]
         static void Main()
@@ -434,6 +480,9 @@ namespace BasicTriangle
             form1.ExitProgram = program.ExitProgram;
             form1.SaveOutput = program.SaveOutput;
             form1.CompileCode = program.CompileCode;
+            form1.PauseShader = program.PauseShader;
+
+            program.ReportFrameRate = form1.ReportFrameRate;
             program.Run();
         }
     }

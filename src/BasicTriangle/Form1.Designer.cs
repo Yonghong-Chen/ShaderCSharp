@@ -38,6 +38,9 @@ namespace BasicTriangle
             this.FileNameBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.buttonPause = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.lableFrameRate = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // button1
@@ -124,11 +127,41 @@ namespace BasicTriangle
             // 
             this.saveFileDialog1.Filter = "Png|*.png|Jpg|*.jpg|All Files|*.*";
             // 
+            // buttonPause
+            // 
+            this.buttonPause.Location = new System.Drawing.Point(217, 13);
+            this.buttonPause.Name = "buttonPause";
+            this.buttonPause.Size = new System.Drawing.Size(75, 23);
+            this.buttonPause.TabIndex = 8;
+            this.buttonPause.Text = "Pause";
+            this.buttonPause.UseVisualStyleBackColor = true;
+            this.buttonPause.Click += new System.EventHandler(this.buttonPause_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(456, 12);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(65, 13);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "Frame Rate:";
+            // 
+            // lableFrameRate
+            // 
+            this.lableFrameRate.AutoSize = true;
+            this.lableFrameRate.Location = new System.Drawing.Point(536, 13);
+            this.lableFrameRate.Name = "lableFrameRate";
+            this.lableFrameRate.Size = new System.Drawing.Size(0, 13);
+            this.lableFrameRate.TabIndex = 10;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.lableFrameRate);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.buttonPause);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.FileNameBox);
             this.Controls.Add(this.Save);
@@ -156,5 +189,8 @@ namespace BasicTriangle
         private System.Windows.Forms.TextBox FileNameBox;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.Button buttonPause;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lableFrameRate;
     }
 }
