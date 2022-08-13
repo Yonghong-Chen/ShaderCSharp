@@ -73,9 +73,13 @@ namespace BasicTriangle
             // 
             // shaderText
             // 
+            this.shaderText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.shaderText.Location = new System.Drawing.Point(52, 86);
             this.shaderText.Multiline = true;
             this.shaderText.Name = "shaderText";
+            this.shaderText.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.shaderText.Size = new System.Drawing.Size(718, 310);
             this.shaderText.TabIndex = 3;
             // 

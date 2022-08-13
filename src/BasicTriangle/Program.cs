@@ -264,6 +264,7 @@ namespace BasicTriangle
         }
         void CompileCode(string shaderCode)
         {
+            System.Text.StringBuilder code = new System.Text.StringBuilder();
             //# iChannel0 "file://cubemaps/yokohama_{}.jpg" // Note the wildcard '{}'
             //# iChannel0::Type "CubeMap"
             //System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -289,6 +290,8 @@ namespace BasicTriangle
                         infos[id].path = txtData;
                     }
                 }
+                else
+                    code.AppendLine(line);
             }
             string standardVertex = @"
         #version 430
@@ -309,6 +312,7 @@ namespace BasicTriangle
         }";
             string standardHeaderFront =
                 @"#version 430
+
 		out vec4 fragColor;
 
         in vec2 texPos;
@@ -342,17 +346,21 @@ namespace BasicTriangle
             m_iChannels.Clear();
             for (int i = 0; i < 10; i ++)
             {
-                if (infos[i].path != "")
+                if (!string.IsNullOrEmpty(infos[i].path))
                 {
-                    if (infos[i].type == "") // no type, defaults to 2d texture
+                    if (string.IsNullOrEmpty(infos[i].type)) // no type, defaults to 2d texture
                     {
-                        sb.AppendFormat("uniform sampler2D iChannel{0)", i);
+                        sb.AppendFormat("uniform sampler2D iChannel{0};", i);
                         m_iChannels.Add(new iChannel((uint) i, infos[i].path));
                     }
                 }
             }
+            if (m_iChannels.Count > 0)
+            {
+                sb.AppendFormat("uniform vec3 iChannelResolution[{0}];", m_iChannels.Count);
+            }
             sb.AppendLine();
-            sb.Append(shaderCode);
+            sb.Append(code.ToString());
             sb.AppendLine();
             sb.Append(standardHeaderBack);
 
