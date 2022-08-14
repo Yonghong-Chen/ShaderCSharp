@@ -110,7 +110,7 @@ namespace BasicTriangle
                 float average = total / count;
                 float rate = 1.0f / average;
                 int FrameRate = (int)rate;
-                lableFrameRate.Text = string.Format("{0} fps");
+                lableFrameRate.Text = string.Format("{0} fps", FrameRate);
             }
         }
     }
