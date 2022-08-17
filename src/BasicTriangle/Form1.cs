@@ -34,8 +34,19 @@ namespace BasicTriangle
             string txt = this.comboBox1.Text;
             try
             {
-                int size = int.Parse(txt);
-                ResizeClient(size, size);
+                string[] strNumbers = txt.Split(new char[] { ',', ' ', '\t', ';',':', '*','-'});
+                if (strNumbers.Length == 1)
+                {
+                    int size = int.Parse(txt);
+
+                    ResizeClient(size, size);
+                }
+                if (strNumbers.Length == 2)
+                {
+                    int width = int.Parse(strNumbers[0]);
+                    int height = int.Parse(strNumbers[1]);
+                    ResizeClient(width, height);
+                }
             }
             catch
             { }
